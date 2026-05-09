@@ -48,4 +48,26 @@ def create_new_reporter(name, email, team):
     return reporter_obj.__dict__
 
 # get all the users
+@api_view(["GET"])
+def get_all_reporters(request):
+    file_path = settings.BASE_DIR/REPORTER_FILE_PATH
+
+    with open(file_path, "r") as file:
+        reporters = json.load(file)
+
+    return Response(data=reporters, status=200)
+
 # get user by id
+@api_view(["GET"])
+def get_reporter_by_id(request):
+    file_path = settings.BASE_DIR/REPORTER_FILE_PATH
+    reporter_id = request.query_params.get("id")
+    with open(file_path, "r") as file:
+        reporters = json.load(file)
+
+    reporter = {}
+    for r in reporters:
+        if int(reporter_id) == r["id"]:
+            reporter = r
+
+    return Response(data=reporter, status=200)
