@@ -1,0 +1,23 @@
+info:
+  name: create new report
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/api/reporters/create/"
+  body:
+    type: json
+    data: |-
+      {
+        "name" : "Vigneswhar",
+        "email": "test@email.com",
+        "team": "backend"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
