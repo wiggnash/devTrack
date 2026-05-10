@@ -79,6 +79,28 @@ Both `status` and `priority` are optional — they default to `open` and `low` r
 
 ---
 
+## Screenshots
+
+Place your screenshots inside a `docs/screenshots/` folder at the project root, then they will display here.
+
+**Success — Create Reporter (201)**
+
+![Create Reporter Success](docs/screenshots/reporter_sucess.png)
+
+**Failure — Missing Title (400)**
+
+![Create Reporter Failure](docs/screenshots/reporter_error.png)
+
+**Success — Create Issue (201)**
+
+![Create Issue Success](docs/screenshots/issue_success.png)
+
+**Failure — Issue Without Title (400)**
+
+![Create Issue Failure](docs/screenshots/issue_error.png)
+
+---
+
 ## Design Decision: Shared File I/O and ID Generation on `BaseEntity`
 
 All entities (`Reporter`, `Issue`) extend a `BaseEntity` abstract class. Rather than duplicating file read/write logic and ID generation in every view, three class methods were added directly to `BaseEntity`:
