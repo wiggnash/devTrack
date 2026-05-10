@@ -1,6 +1,8 @@
 # DevTrack
 
-A issue tracking REST API built with Django and Django REST Framework. Supports creating and managing reporters and issues, backed by JSON file storage.
+A minimal backend API for tracking engineering issues — think stripped-down GitHub Issues. Engineers can report bugs, assign priorities, and track statuses through a set of REST endpoints testable in Postman.
+
+Built with Django and Django REST Framework. Data is modelled using OOP principles and stored in JSON files.
 
 ## How to Run
 
