@@ -1,0 +1,25 @@
+info:
+  name: create issue
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/api/issues/create/"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Login button not working on mobile",
+        "description": "Users on iOS 17 cannot tap the login button",
+        "status": "open",
+        "priority": "critical",
+        "reporter_id": 1
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

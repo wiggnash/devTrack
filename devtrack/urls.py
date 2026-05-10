@@ -16,12 +16,10 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
-from issues.views import create_reporter, get_all_reporters, get_reporter_by_id
+from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/reporters/create/", create_reporter),
-    path("api/reporters/all/", get_all_reporters),
-    path("api/reporters/get/", get_reporter_by_id)
+    path("api/reporters/", include("reporters.urls")),
+    path("api/issues/", include("issues.urls")),
 ]

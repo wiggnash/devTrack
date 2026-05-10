@@ -1,73 +1,100 @@
-import json
-from rest_framework.decorators import api_view
+# django imports
 from django.conf import settings
+
+# restframework imports
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import Reporter, Issue
+# models import
+from .models import Issue, CriticalIssue, LowPriorityIssue, IssueStatus, IssuePriority
 
-REPORTER_FILE_PATH = "data/reporters.json"
-# create a new user
+ISSUES_FILE_PATH = "data/issues.json"
+
 @api_view(["POST"])
-def create_reporter(request):
+def create_issue(request):
     payload = request.data
 
-    # get details
-    name = payload.get("name")
-    email = payload.get("email")
-    team = payload.get("team")
+    title = payload.get("title")
+    description = payload.get("description")
+    status = payload.get("status")
+    priority = payload.get("priority")
+    reporter_id = payload.get("reporter_id")
 
-    # create new reporter
     try:
-        reporter = create_new_reporter(name, email, team)
+        issue = create_new_issue(title, description, status, priority, reporter_id)
     except ValueError as e:
         return Response(data={"error": str(e)}, status=400)
 
-    return Response(data=reporter, status=201)
+    return Response(data=issue, status=201)
 
-def create_new_reporter(name, email, team):
-    file_path = settings.BASE_DIR/REPORTER_FILE_PATH
+def create_new_issue(title, description, status, priority, reporter_id):
+    file_path = settings.BASE_DIR / ISSUES_FILE_PATH
 
-    # read data from file
-    with open(file_path, "r") as file:
-        reporters = json.load(file)
+    issues = Issue.read_all(file_path)
 
-    id = len(reporters) + 1
-    reporter_obj = Reporter(
-        id=id,
-        name=name,
-        email=email,
-        team=team
-    )
-    reporter_obj.validate()
-    reporters.append(reporter_obj.__dict__)
+    id = Issue.generate_id(issues)
 
-    # write the data to the file
-    with open(file_path, "w") as file:
-        json.dump(reporters, file)
+    # set default values
+    if not status:
+        status = IssueStatus.OPEN
 
-    return reporter_obj.__dict__
+    if not priority:
+        priority = IssuePriority.LOW
 
-# get all the users
+    if priority == IssuePriority.CRITICAL:
+        issue_obj = CriticalIssue(
+            id=id,
+            title=title,
+            description=description,
+            status=status,
+            priority=priority,
+            reporter_id=reporter_id
+        )
+    elif priority == IssuePriority.LOW:
+        issue_obj = LowPriorityIssue(
+            id=id,
+            title=title,
+            description=description,
+            status=status,
+            priority=priority,
+            reporter_id=reporter_id
+        )
+    else:
+        issue_obj = Issue(
+            id=id,
+            title=title,
+            description=description,
+            status=status,
+            priority=priority,
+            reporter_id=reporter_id
+        )
+    issue_obj.validate()
+    issue_dict = issue_obj.to_dict()
+
+    issues.append(issue_dict)
+    Issue.save_all(file_path, issues)
+
+    issue_dict["message"] = issue_obj.describe()
+    return issue_dict
+
 @api_view(["GET"])
-def get_all_reporters(request):
-    file_path = settings.BASE_DIR/REPORTER_FILE_PATH
+def get_all_issues(request):
+    file_path = settings.BASE_DIR / ISSUES_FILE_PATH
+    issues = Issue.read_all(file_path)
+    return Response(data=issues, status=200)
 
-    with open(file_path, "r") as file:
-        reporters = json.load(file)
-
-    return Response(data=reporters, status=200)
-
-# get user by id
 @api_view(["GET"])
-def get_reporter_by_id(request):
-    file_path = settings.BASE_DIR/REPORTER_FILE_PATH
-    reporter_id = request.query_params.get("id")
-    with open(file_path, "r") as file:
-        reporters = json.load(file)
+def get_issue_by_id(request):
+    file_path = settings.BASE_DIR / ISSUES_FILE_PATH
+    issue_id = request.query_params.get("id")
+    issues = Issue.read_all(file_path)
 
-    reporter = {}
-    for r in reporters:
-        if int(reporter_id) == r["id"]:
-            reporter = r
+    issue = None
+    for i in issues:
+        if int(issue_id) == i["id"]:
+            issue = i
 
-    return Response(data=reporter, status=200)
+    if not issue:
+        return Response(data={"error": "Issue not found"}, status=404)
+
+    return Response(data=issue, status=200)
